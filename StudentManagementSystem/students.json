@@ -1,0 +1,11 @@
+[
+    {
+        "name": "Leri",
+        "surname": "Charkviani",
+        "age": 37,
+        "grades": [
+            100,
+            80
+        ]
+    }
+]
