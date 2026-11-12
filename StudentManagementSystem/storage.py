@@ -1,11 +1,13 @@
 import json
-from pathlib import Path
+import os
 
 from student import Student
 from student_manager import students
 
 
-FILE_PATH = Path(__file__).with_name("students.json")
+FILE_PATH = os.path.join(
+    os.path.dirname(__file__), "students.json"
+)
 
 
 def save_students():
@@ -16,14 +18,17 @@ def save_students():
             "name": student.name,
             "surname": student.surname,
             "age": student.age,
+            "roll_number": student.roll_number,
+            "course": student.course,
             "grades": student.grades
         }
+
         data.append(student_data)
 
     with open(FILE_PATH, "w", encoding="utf-8") as file:
         json.dump(data, file, indent=4, ensure_ascii=False)
 
-    print("Students saved successfully!")
+    print("სტუდენტების მონაცემები წარმატებით შეინახა!")
 
 
 def load_students():
@@ -31,22 +36,36 @@ def load_students():
         with open(FILE_PATH, "r", encoding="utf-8") as file:
             data = json.load(file)
 
-        students.clear()
+        loaded_students = []
 
-        for student_data in data:
+        for index, student_data in enumerate(data, start=1):
+            roll_number = student_data.get("roll_number")
+
+            if not roll_number:
+                roll_number = "OLD-" + str(index)
+
+            course = student_data.get("course", "არ არის არჩეული")
+
             student = Student(
                 student_data["name"],
                 student_data["surname"],
-                student_data["age"]
+                student_data["age"],
+                str(roll_number),
+                course
             )
 
             student.grades = student_data.get("grades", [])
+            loaded_students.append(student)
+
+        students.clear()
+
+        for student in loaded_students:
             students.append(student)
 
-        print("Students loaded successfully!")
+        print("სტუდენტების მონაცემები წარმატებით ჩაიტვირთა!")
 
     except FileNotFoundError:
-        print("No saved students found!")
+        print("შენახული მონაცემები არ მოიძებნა!")
 
-    except json.JSONDecodeError:
-        print("Saved file is empty or invalid!")
+    except (json.JSONDecodeError, KeyError, TypeError, ValueError):
+        print("შენახული მონაცემები არასწორია!")

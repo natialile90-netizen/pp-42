@@ -1,18 +1,30 @@
 def validate_name(name):
-    return bool(name.strip())
+    if name.strip():
+        return True
+    return False
 
 
 def validate_age(age):
     try:
         age = int(age)
-        return 6 <= age <= 100
+        if 16 <= age <= 70:
+            return True
+        return False
     except ValueError:
         return False
+
+
+def validate_roll_number(roll_number):
+    if roll_number.strip():
+        return True
+    return False
 
 
 def validate_grade(grade):
     try:
         grade = int(grade)
-        return 0 <= grade <= 100
+        if 0 <= grade <= 100:
+            return True
+        return False
     except ValueError:
         return False
