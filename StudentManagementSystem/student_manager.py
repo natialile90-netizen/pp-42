@@ -1,223 +1,237 @@
 from student import Student
-from validation import validate_name, validate_age, validate_roll_number
-
-students = []
-
-courses = ["Python", "C#", "JavaScript", "Java", "C++"]
+from validation import Validation
 
 
-def find_student(roll_number):
-    for student in students:
-        if student.roll_number == roll_number:
-            return student
-    return None
+class StudentManager:
+    def __init__(self, storage):
+        self.students = []
+        self.courses = ["Python", "C#", "JavaScript", "Java", "C++"]
+        self.validation = Validation()
+        self.storage = storage
 
+    def save(self):
+        return self.storage.save_students(self.students)
 
-def choose_course():
-    print("\n===== პროგრამირების კურსები =====")
+    def find_student(self, roll_number):
+        for student in self.students:
+            if student.roll_number == roll_number:
+                return student
 
-    for index, course in enumerate(courses, 1):
-        print(index, "-", course)
+        return None
 
-    choice = input("აირჩიეთ კურსი (1-5): ").strip()
+    def choose_course(self):
+        print("\n===== პროგრამირების კურსები =====")
 
-    if not choice.isdigit():
+        for index, course in enumerate(self.courses, 1):
+            print(index, "-", course)
+
+        choice = input("აირჩიეთ კურსი (1-5): ").strip()
+
+        if not choice.isdigit():
+            print("კურსის ნომერი არასწორია!")
+            return None
+
+        choice = int(choice)
+
+        if 1 <= choice <= len(self.courses):
+            return self.courses[choice - 1]
+
         print("კურსის ნომერი არასწორია!")
         return None
 
-    choice = int(choice)
+    def add_student(self):
+        name = input("შეიყვანეთ სტუდენტის სახელი: ").strip()
+        surname = input("შეიყვანეთ სტუდენტის გვარი: ").strip()
+        age = input("შეიყვანეთ ასაკი: ").strip()
+        roll_number = input("შეიყვანეთ სტუდენტის ნომერი: ").strip()
 
-    if 1 <= choice <= 5:
-        return courses[choice - 1]
+        if not self.validation.validate_name(name):
+            print("სახელი არასწორია!")
+            return
 
-    print("კურსის ნომერი არასწორია!")
-    return None
+        if not self.validation.validate_name(surname):
+            print("გვარი არასწორია!")
+            return
 
+        if not self.validation.validate_age(age):
+            print("ასაკი უნდა იყოს 16-დან 70 წლამდე!")
+            return
 
-def print_student(student):
-    if student.grades:
-        average = round(sum(student.grades) / len(student.grades), 2)
-    else:
-        average = "შეფასებები არ აქვს"
+        if not self.validation.validate_roll_number(roll_number):
+            print("სტუდენტის ნომერი უნდა შეიცავდეს მხოლოდ ციფრებს!")
+            return
 
-    print("სტუდენტის ნომერი:", student.roll_number)
-    print("სახელი:", student.name)
-    print("გვარი:", student.surname)
-    print("ასაკი:", student.age)
-    print("კურსი:", student.course)
-    print("შეფასებები:", student.grades)
-    print("საშუალო შეფასება:", average)
-    print("-" * 45)
+        if self.find_student(roll_number):
+            print("სტუდენტი ამ ნომრით უკვე არსებობს!")
+            return
 
+        course = self.choose_course()
 
-def add_student():
-    name = input("შეიყვანეთ სტუდენტის სახელი: ").strip()
-    surname = input("შეიყვანეთ სტუდენტის გვარი: ").strip()
-    age = input("შეიყვანეთ ასაკი: ")
-    roll_number = input("შეიყვანეთ სტუდენტის ნომერი: ").strip()
+        if course is None:
+            return
 
-    if not validate_name(name) or not validate_name(surname):
-        print("სახელი ან გვარი არასწორია!")
-        return
+        try:
+            student = Student(
+                name,
+                surname,
+                int(age),
+                roll_number,
+                course
+            )
 
-    if not validate_age(age):
-        print("ასაკი უნდა იყოს 16-დან 70 წლამდე!")
-        return
+        except (ValueError, TypeError) as error:
+            print("სტუდენტის შექმნის შეცდომა:", error)
+            return
 
-    if not validate_roll_number(roll_number):
-        print("სტუდენტის ნომერი არ შეიძლება იყოს ცარიელი!")
-        return
+        self.students.append(student)
 
-    if find_student(roll_number):
-        print("სტუდენტი ამ ნომრით უკვე არსებობს!")
-        return
+        if self.save():
+            print("სტუდენტი წარმატებით დაემატა!")
+        else:
+            print("სტუდენტი დაემატა, მაგრამ ფაილში ვერ შეინახა!")
 
-    course = choose_course()
+    def show_students(self):
+        if not self.students:
+            print("სტუდენტები არ მოიძებნა!")
+            return
 
-    if course is None:
-        return
+        for student in self.students:
+            student.show_info()
 
-    student = Student(
-        name, surname, int(age), roll_number, course
-    )
+    def search_student(self):
+        roll_number = input(
+            "შეიყვანეთ სტუდენტის ნომერი: "
+        ).strip()
 
-    students.append(student)
+        student = self.find_student(roll_number)
 
-    from storage import save_students
-    save_students()
+        if student:
+            student.show_info()
+        else:
+            print("სტუდენტი ვერ მოიძებნა!")
 
-    print("სტუდენტი წარმატებით დაემატა!")
+    def delete_student(self):
+        roll_number = input(
+            "შეიყვანეთ წასაშლელი სტუდენტის ნომერი: "
+        ).strip()
 
+        student = self.find_student(roll_number)
 
-def show_students():
-    if not students:
-        print("სტუდენტები არ მოიძებნა!")
-        return
+        if student:
+            self.students.remove(student)
 
-    for student in students:
-        print_student(student)
+            if self.save():
+                print("სტუდენტი წარმატებით წაიშალა!")
+            else:
+                print("სტუდენტი სიიდან წაიშალა, მაგრამ ფაილში ვერ შეინახა!")
+        else:
+            print("სტუდენტი ვერ მოიძებნა!")
 
+    def update_student(self):
+        roll_number = input(
+            "შეიყვანეთ სტუდენტის ნომერი: "
+        ).strip()
 
-def search_student():
-    roll_number = input("შეიყვანეთ სტუდენტის ნომერი: ").strip()
-    student = find_student(roll_number)
+        student = self.find_student(roll_number)
 
-    if student:
-        print_student(student)
-    else:
-        print("სტუდენტი ვერ მოიძებნა!")
+        if not student:
+            print("სტუდენტი ვერ მოიძებნა!")
+            return
 
+        new_name = input("შეიყვანეთ ახალი სახელი: ").strip()
+        new_surname = input("შეიყვანეთ ახალი გვარი: ").strip()
+        new_age = input("შეიყვანეთ ახალი ასაკი: ").strip()
 
-def delete_student():
-    roll_number = input("შეიყვანეთ წასაშლელი სტუდენტის ნომერი: ").strip()
-    student = find_student(roll_number)
+        if not self.validation.validate_name(new_name):
+            print("სახელი არასწორია!")
+            return
 
-    if student:
-        students.remove(student)
+        if not self.validation.validate_name(new_surname):
+            print("გვარი არასწორია!")
+            return
 
-        from storage import save_students
-        save_students()
+        if not self.validation.validate_age(new_age):
+            print("ასაკი უნდა იყოს 16-დან 70 წლამდე!")
+            return
 
-        print("სტუდენტი წარმატებით წაიშალა!")
-    else:
-        print("სტუდენტი ვერ მოიძებნა!")
+        new_course = self.choose_course()
 
+        if new_course is None:
+            return
 
-def update_student():
-    roll_number = input("შეიყვანეთ სტუდენტის ნომერი: ").strip()
-    student = find_student(roll_number)
+        try:
+            student.name = new_name
+            student.surname = new_surname
+            student.age = int(new_age)
+            student.course = new_course
 
-    if not student:
-        print("სტუდენტი ვერ მოიძებნა!")
-        return
+        except (ValueError, TypeError) as error:
+            print("მონაცემების განახლების შეცდომა:", error)
+            return
 
-    new_name = input("შეიყვანეთ ახალი სახელი: ").strip()
-    new_surname = input("შეიყვანეთ ახალი გვარი: ").strip()
-    new_age = input("შეიყვანეთ ახალი ასაკი: ")
+        if self.save():
+            print("სტუდენტის მონაცემები წარმატებით განახლდა!")
+        else:
+            print("მონაცემები შეიცვალა, მაგრამ ფაილში ვერ შეინახა!")
 
-    if not validate_name(new_name) or not validate_name(new_surname):
-        print("სახელი ან გვარი არასწორია!")
-        return
+    def show_students_by_course(self):
+        course = self.choose_course()
 
-    if not validate_age(new_age):
-        print("ასაკი უნდა იყოს 16-დან 70 წლამდე!")
-        return
+        if course is None:
+            return
 
-    new_course = choose_course()
+        print("\n=====", course, "- სტუდენტები =====")
 
-    if new_course is None:
-        return
-
-    student.name = new_name
-    student.surname = new_surname
-    student.age = int(new_age)
-    student.course = new_course
-
-    from storage import save_students
-    save_students()
-
-    print("სტუდენტის მონაცემები წარმატებით განახლდა!")
-
-
-def show_students_by_course():
-    course = choose_course()
-
-    if course is None:
-        return
-
-    print("\n===== " + course + " - სტუდენტები =====")
-
-    count = 0
-
-    for student in students:
-        if student.course == course:
-            print_student(student)
-            count += 1
-
-    if count == 0:
-        print("ამ კურსზე სტუდენტები არ მოიძებნა!")
-
-    print("სტუდენტების რაოდენობა:", count)
-
-
-def total_students():
-    print("სტუდენტების საერთო რაოდენობა:", len(students))
-
-
-def top_student():
-    best_student = None
-    highest_average = -1
-
-    for student in students:
-        if student.grades:
-            average = sum(student.grades) / len(student.grades)
-
-            if average > highest_average:
-                highest_average = average
-                best_student = student
-
-    if best_student:
-        print("საუკეთესო სტუდენტი:")
-        print("სახელი:", best_student.name)
-        print("გვარი:", best_student.surname)
-        print("სტუდენტის ნომერი:", best_student.roll_number)
-        print("კურსი:", best_student.course)
-        print("შეფასებები:", best_student.grades)
-        print("საშუალო შეფასება:", round(highest_average, 2))
-    else:
-        print("შეფასებული სტუდენტები არ მოიძებნა!")
-
-
-def course_statistics():
-    print("\n===== კურსების სტატისტიკა =====")
-
-    for course in courses:
         count = 0
 
-        for student in students:
+        for student in self.students:
             if student.course == course:
+                student.show_info()
                 count += 1
 
-        print(course, "- სტუდენტების რაოდენობა:", count)
+        if count == 0:
+            print("ამ კურსზე სტუდენტები არ მოიძებნა!")
 
-    print("სულ სტუდენტები:", len(students))
+        print("სტუდენტების რაოდენობა:", count)
+
+    def total_students(self):
+        print(
+            "სტუდენტების საერთო რაოდენობა:",
+            len(self.students)
+        )
+
+    def top_student(self):
+        best_student = None
+        highest_average = -1
+
+        for student in self.students:
+            if student.grades:
+                average = student.get_average()
+
+                if average > highest_average:
+                    highest_average = average
+                    best_student = student
+
+        if best_student:
+            print("საუკეთესო სტუდენტი:")
+            best_student.show_info()
+        else:
+            print("შეფასებული სტუდენტები არ მოიძებნა!")
+
+    def course_statistics(self):
+        print("\n===== კურსების სტატისტიკა =====")
+
+        for course in self.courses:
+            count = 0
+
+            for student in self.students:
+                if student.course == course:
+                    count += 1
+
+            print(
+                course,
+                "- სტუდენტების რაოდენობა:",
+                count
+            )
+
+        print("სულ სტუდენტები:", len(self.students))

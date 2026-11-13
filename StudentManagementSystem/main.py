@@ -1,39 +1,30 @@
-from student_manager import (
-    add_student,
-    show_students,
-    search_student,
-    delete_student,
-    update_student,
-    show_students_by_course,
-    total_students,
-    top_student,
-    course_statistics
-)
-
-from grades import (
-    add_grade,
-    average_grade,
-    edit_grade,
-    delete_grade
-)
-
-from storage import save_students, load_students
+from student_manager import StudentManager
+from grades import GradeManager
+from storage import Storage
 
 
-def show_result(title, function):
-    print("\n" + "=" * 45)
-    print(title.center(45))
-    print("=" * 45)
+class StudentManagementSystem:
+    def __init__(self):
+        self.storage = Storage()
 
-    function()
+        self.student_manager = StudentManager(self.storage)
 
-    print("=" * 45 + "\n")
+        self.grade_manager = GradeManager(self.student_manager)
 
+    def show_result(self, title, function):
+        print("\n" + "=" * 45)
+        print(title.center(45))
+        print("=" * 45)
 
-def main():
-    load_students()
+        try:
+            function()
 
-    while True:
+        except (ValueError, TypeError, IndexError) as error:
+            print("მოქმედების შესრულების შეცდომა:", error)
+
+        print("=" * 45 + "\n")
+
+    def show_menu(self):
         print("\n===== IT აკადემიის მართვის სისტემა =====")
         print("1. სტუდენტის დამატება")
         print("2. ყველა სტუდენტის ნახვა")
@@ -50,57 +41,119 @@ def main():
         print("13. კურსების სტატისტიკა")
         print("0. გამოსვლა")
 
-        choice = input("აირჩიეთ მოქმედება: ")
+    def run(self):
+        loaded_students = self.storage.load_students()
 
-        if choice == "1":
-            show_result("სტუდენტის დამატება", add_student)
+        if loaded_students is None:
+            print("პროგრამა შეჩერდა მონაცემების დასაცავად!")
+            return
 
-        elif choice == "2":
-            show_result("სტუდენტების სია", show_students)
+        self.student_manager.students = loaded_students
 
-        elif choice == "3":
-            show_result("სტუდენტის ძებნა", search_student)
+        while True:
+            self.show_menu()
 
-        elif choice == "4":
-            show_result("სტუდენტის წაშლა", delete_student)
+            try:
+                choice = input("აირჩიეთ მოქმედება: ").strip()
 
-        elif choice == "5":
-            show_result("სტუდენტის განახლება", update_student)
+            except (EOFError, KeyboardInterrupt):
+                print("\nპროგრამის შეწყვეტის მოთხოვნა.")
+                print("გამოსასვლელად აირჩიეთ 0.")
+                continue
 
-        elif choice == "6":
-            show_result("შეფასების დამატება", add_grade)
+            if choice == "1":
+                self.show_result(
+                    "სტუდენტის დამატება",
+                    self.student_manager.add_student
+                )
 
-        elif choice == "7":
-            show_result("საშუალო შეფასება", average_grade)
+            elif choice == "2":
+                self.show_result(
+                    "სტუდენტების სია",
+                    self.student_manager.show_students
+                )
 
-        elif choice == "8":
-            show_result("სტუდენტები კურსის მიხედვით", show_students_by_course)
+            elif choice == "3":
+                self.show_result(
+                    "სტუდენტის ძებნა",
+                    self.student_manager.search_student
+                )
 
-        elif choice == "9":
-            show_result("შეფასების შეცვლა", edit_grade)
+            elif choice == "4":
+                self.show_result(
+                    "სტუდენტის წაშლა",
+                    self.student_manager.delete_student
+                )
 
-        elif choice == "10":
-            show_result("შეფასების წაშლა", delete_grade)
+            elif choice == "5":
+                self.show_result(
+                    "სტუდენტის განახლება",
+                    self.student_manager.update_student
+                )
 
-        elif choice == "11":
-            show_result("სტუდენტების რაოდენობა", total_students)
+            elif choice == "6":
+                self.show_result(
+                    "შეფასების დამატება",
+                    self.grade_manager.add_grade
+                )
 
-        elif choice == "12":
-            show_result("საუკეთესო სტუდენტი", top_student)
+            elif choice == "7":
+                self.show_result(
+                    "საშუალო შეფასება",
+                    self.grade_manager.average_grade
+                )
 
-        elif choice == "13":
-            show_result("კურსების სტატისტიკა", course_statistics)
+            elif choice == "8":
+                self.show_result(
+                    "სტუდენტები კურსის მიხედვით",
+                    self.student_manager.show_students_by_course
+                )
 
-        elif choice == "0":
-            show_result("მონაცემების შენახვა", save_students)
-            print("ნახვამდის!")
-            break
+            elif choice == "9":
+                self.show_result(
+                    "შეფასების შეცვლა",
+                    self.grade_manager.edit_grade
+                )
 
-        else:
-            print("\n" + "=" * 45)
-            print("არასწორი არჩევანი! სცადეთ თავიდან.")
-            print("=" * 45)
+            elif choice == "10":
+                self.show_result(
+                    "შეფასების წაშლა",
+                    self.grade_manager.delete_grade
+                )
+
+            elif choice == "11":
+                self.show_result(
+                    "სტუდენტების რაოდენობა",
+                    self.student_manager.total_students
+                )
+
+            elif choice == "12":
+                self.show_result(
+                    "საუკეთესო სტუდენტი",
+                    self.student_manager.top_student
+                )
+
+            elif choice == "13":
+                self.show_result(
+                    "კურსების სტატისტიკა",
+                    self.student_manager.course_statistics
+                )
+
+            elif choice == "0":
+                if self.storage.save_students(
+                    self.student_manager.students
+                ):
+                    print("ნახვამდის!")
+                    break
+
+                else:
+                    print("მონაცემები ვერ შეინახა!")
+                    print("სცადეთ თავიდან.")
+
+            else:
+                print("\nარასწორი არჩევანი! სცადეთ თავიდან.")
 
 
 if __name__ == "__main__":
-    main()
+    system = StudentManagementSystem()
+    system.run()

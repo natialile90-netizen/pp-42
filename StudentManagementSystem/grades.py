@@ -1,141 +1,175 @@
-from student_manager import find_student
-from validation import validate_grade
+from validation import Validation
 
 
-def add_grade():
-    roll_number = input("შეიყვანეთ სტუდენტის ნომერი: ").strip()
-    student = find_student(roll_number)
+class GradeManager:
+    def __init__(self, student_manager):
+        self.student_manager = student_manager
+        self.validation = Validation()
 
-    if not student:
-        print("სტუდენტი ვერ მოიძებნა!")
-        return
+    def add_grade(self):
+        roll_number = input(
+            "შეიყვანეთ სტუდენტის ნომერი: "
+        ).strip()
 
-    grade = input("შეიყვანეთ შეფასება (0-100): ")
+        student = self.student_manager.find_student(roll_number)
 
-    if not validate_grade(grade):
-        print("შეფასება უნდა იყოს 0-დან 100-მდე!")
-        return
+        if not student:
+            print("სტუდენტი ვერ მოიძებნა!")
+            return
 
-    student.grades.append(int(grade))
+        grade = input("შეიყვანეთ შეფასება (0-100): ").strip()
 
-    from storage import save_students
-    save_students()
+        if not self.validation.validate_grade(grade):
+            print("შეფასება უნდა იყოს 0-დან 100-მდე!")
+            return
 
-    print("შეფასება წარმატებით დაემატა!")
+        try:
+            student.grades.append(int(grade))
 
+            if self.student_manager.save():
+                print("შეფასება წარმატებით დაემატა!")
+            else:
+                print("შეფასება დაემატა, მაგრამ ფაილში ვერ შეინახა!")
 
-def grade_category(grade):
-    if grade >= 91:
-        return "შესანიშნავი"
-    elif grade >= 81:
-        return "ძალიან კარგი"
-    elif grade >= 71:
-        return "კარგი"
-    elif grade >= 61:
-        return "დამაკმაყოფილებელი"
-    elif grade >= 51:
-        return "ჩაბარებული"
-    else:
-        return "არადამაკმაყოფილებელი"
+        except (ValueError, TypeError) as error:
+            print("შეფასების დამატების შეცდომა:", error)
 
+    def grade_category(self, grade):
+        if grade >= 91:
+            return "შესანიშნავი"
+        elif grade >= 81:
+            return "ძალიან კარგი"
+        elif grade >= 71:
+            return "კარგი"
+        elif grade >= 61:
+            return "დამაკმაყოფილებელი"
+        elif grade >= 51:
+            return "ჩაბარებული"
+        else:
+            return "არადამაკმაყოფილებელი"
 
-def average_grade():
-    roll_number = input("შეიყვანეთ სტუდენტის ნომერი: ").strip()
-    student = find_student(roll_number)
+    def average_grade(self):
+        roll_number = input(
+            "შეიყვანეთ სტუდენტის ნომერი: "
+        ).strip()
 
-    if not student:
-        print("სტუდენტი ვერ მოიძებნა!")
-        return
+        student = self.student_manager.find_student(roll_number)
 
-    if not student.grades:
-        print("სტუდენტს შეფასებები არ აქვს!")
-        return
+        if not student:
+            print("სტუდენტი ვერ მოიძებნა!")
+            return
 
-    average = sum(student.grades) / len(student.grades)
+        if not student.grades:
+            print("სტუდენტს შეფასებები არ აქვს!")
+            return
 
-    print("სტუდენტი:", student.name, student.surname)
-    print("კურსი:", student.course)
-    print("შეფასებები:", student.grades)
-    print("საშუალო შეფასება:", round(average, 2))
-    print("შედეგი:", grade_category(average))
+        try:
+            average = student.get_average()
 
-    if average >= 51:
-        print("სტატუსი: ჩაბარებული")
-    else:
-        print("სტატუსი: ჩაჭრილი")
+            print("სტუდენტი:", student.name, student.surname)
+            print("კურსი:", student.course)
+            print("შეფასებები:", student.grades)
+            print("საშუალო შეფასება:", round(average, 2))
+            print("შედეგი:", self.grade_category(average))
 
+            if average >= 51:
+                print("სტატუსი: ჩაბარებული")
+            else:
+                print("სტატუსი: ჩაჭრილი")
 
-def edit_grade():
-    roll_number = input("შეიყვანეთ სტუდენტის ნომერი: ").strip()
-    student = find_student(roll_number)
+        except (ValueError, TypeError, ZeroDivisionError) as error:
+            print("საშუალო შეფასების გამოთვლის შეცდომა:", error)
 
-    if not student:
-        print("სტუდენტი ვერ მოიძებნა!")
-        return
+    def edit_grade(self):
+        roll_number = input(
+            "შეიყვანეთ სტუდენტის ნომერი: "
+        ).strip()
 
-    if not student.grades:
-        print("სტუდენტს შეფასებები არ აქვს!")
-        return
+        student = self.student_manager.find_student(roll_number)
 
-    for index, grade in enumerate(student.grades, 1):
-        print(index, "-", grade)
+        if not student:
+            print("სტუდენტი ვერ მოიძებნა!")
+            return
 
-    choice = input("აირჩიეთ შესაცვლელი შეფასების ნომერი: ")
+        if not student.grades:
+            print("სტუდენტს შეფასებები არ აქვს!")
+            return
 
-    if not choice.isdigit():
-        print("არასწორი ნომერი!")
-        return
+        for index, grade in enumerate(student.grades, 1):
+            print(index, "-", grade)
 
-    choice = int(choice)
+        choice = input(
+            "აირჩიეთ შესაცვლელი შეფასების ნომერი: "
+        ).strip()
 
-    if choice < 1 or choice > len(student.grades):
-        print("არასწორი ნომერი!")
-        return
+        if not choice.isdigit():
+            print("არასწორი ნომერი!")
+            return
 
-    new_grade = input("შეიყვანეთ ახალი შეფასება (0-100): ")
+        choice = int(choice)
 
-    if not validate_grade(new_grade):
-        print("შეფასება უნდა იყოს 0-დან 100-მდე!")
-        return
+        if choice < 1 or choice > len(student.grades):
+            print("არასწორი ნომერი!")
+            return
 
-    student.grades[choice - 1] = int(new_grade)
+        new_grade = input(
+            "შეიყვანეთ ახალი შეფასება (0-100): "
+        ).strip()
 
-    from storage import save_students
-    save_students()
+        if not self.validation.validate_grade(new_grade):
+            print("შეფასება უნდა იყოს 0-დან 100-მდე!")
+            return
 
-    print("შეფასება წარმატებით შეიცვალა!")
+        try:
+            student.grades[choice - 1] = int(new_grade)
 
+            if self.student_manager.save():
+                print("შეფასება წარმატებით შეიცვალა!")
+            else:
+                print("შეფასება შეიცვალა, მაგრამ ფაილში ვერ შეინახა!")
 
-def delete_grade():
-    roll_number = input("შეიყვანეთ სტუდენტის ნომერი: ").strip()
-    student = find_student(roll_number)
+        except (ValueError, TypeError, IndexError) as error:
+            print("შეფასების შეცვლის შეცდომა:", error)
 
-    if not student:
-        print("სტუდენტი ვერ მოიძებნა!")
-        return
+    def delete_grade(self):
+        roll_number = input(
+            "შეიყვანეთ სტუდენტის ნომერი: "
+        ).strip()
 
-    if not student.grades:
-        print("სტუდენტს შეფასებები არ აქვს!")
-        return
+        student = self.student_manager.find_student(roll_number)
 
-    for index, grade in enumerate(student.grades, 1):
-        print(index, "-", grade)
+        if not student:
+            print("სტუდენტი ვერ მოიძებნა!")
+            return
 
-    choice = input("აირჩიეთ წასაშლელი შეფასების ნომერი: ")
+        if not student.grades:
+            print("სტუდენტს შეფასებები არ აქვს!")
+            return
 
-    if not choice.isdigit():
-        print("არასწორი ნომერი!")
-        return
+        for index, grade in enumerate(student.grades, 1):
+            print(index, "-", grade)
 
-    choice = int(choice)
+        choice = input(
+            "აირჩიეთ წასაშლელი შეფასების ნომერი: "
+        ).strip()
 
-    if choice < 1 or choice > len(student.grades):
-        print("არასწორი ნომერი!")
-        return
+        if not choice.isdigit():
+            print("არასწორი ნომერი!")
+            return
 
-    student.grades.pop(choice - 1)
+        choice = int(choice)
 
-    from storage import save_students
-    save_students()
+        if choice < 1 or choice > len(student.grades):
+            print("არასწორი ნომერი!")
+            return
 
-    print("შეფასება წარმატებით წაიშალა!")
+        try:
+            student.grades.pop(choice - 1)
+
+            if self.student_manager.save():
+                print("შეფასება წარმატებით წაიშალა!")
+            else:
+                print("შეფასება წაიშალა, მაგრამ ფაილში ვერ შეინახა!")
+
+        except (IndexError, TypeError) as error:
+            print("შეფასების წაშლის შეცდომა:", error)

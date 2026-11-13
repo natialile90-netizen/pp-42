@@ -1,30 +1,31 @@
-def validate_name(name):
-    if name.strip():
-        return True
-    return False
+class Validation:
 
+    def validate_name(self, name):
+        name = name.strip()
 
-def validate_age(age):
-    try:
+        if not name:
+            return False
+
+        return all(
+            part.isalpha()
+            for part in name.split()
+        )
+
+    def validate_age(self, age):
+        if not age.isdigit():
+            return False
+
         age = int(age)
-        if 16 <= age <= 70:
-            return True
-        return False
-    except ValueError:
-        return False
 
+        return 16 <= age <= 70
 
-def validate_roll_number(roll_number):
-    if roll_number.strip():
-        return True
-    return False
+    def validate_roll_number(self, roll_number):
+        return roll_number.isdigit()
 
+    def validate_grade(self, grade):
+        if not grade.isdigit():
+            return False
 
-def validate_grade(grade):
-    try:
         grade = int(grade)
-        if 0 <= grade <= 100:
-            return True
-        return False
-    except ValueError:
-        return False
+
+        return 0 <= grade <= 100

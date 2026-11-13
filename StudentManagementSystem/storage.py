@@ -2,70 +2,93 @@ import json
 import os
 
 from student import Student
-from student_manager import students
 
 
-FILE_PATH = os.path.join(
-    os.path.dirname(__file__), "students.json"
-)
+class Storage:
+    def __init__(self):
+        self.file_path = os.path.join(
+            os.path.dirname(__file__),
+            "students.json"
+        )
 
+    def save_students(self, students):
+        try:
+            data = []
 
-def save_students():
-    data = []
+            for student in students:
+                student_data = {
+                    "name": student.name,
+                    "surname": student.surname,
+                    "age": student.age,
+                    "roll_number": student.roll_number,
+                    "course": student.course,
+                    "grades": student.grades
+                }
 
-    for student in students:
-        student_data = {
-            "name": student.name,
-            "surname": student.surname,
-            "age": student.age,
-            "roll_number": student.roll_number,
-            "course": student.course,
-            "grades": student.grades
-        }
+                data.append(student_data)
 
-        data.append(student_data)
+            with open(self.file_path, "w", encoding="utf-8") as file:
+                json.dump(
+                    data,
+                    file,
+                    indent=4,
+                    ensure_ascii=False
+                )
 
-    with open(FILE_PATH, "w", encoding="utf-8") as file:
-        json.dump(data, file, indent=4, ensure_ascii=False)
+            print("მონაცემები წარმატებით შეინახა!")
+            return True
 
-    print("სტუდენტების მონაცემები წარმატებით შეინახა!")
+        except (OSError, TypeError, ValueError) as error:
+            print("მონაცემების შენახვის შეცდომა:", error)
+            return False
 
+    def load_students(self):
+        try:
+            with open(self.file_path, "r", encoding="utf-8") as file:
+                data = json.load(file)
 
-def load_students():
-    try:
-        with open(FILE_PATH, "r", encoding="utf-8") as file:
-            data = json.load(file)
+            if not isinstance(data, list):
+                raise ValueError("JSON ფაილში უნდა იყოს სია!")
 
-        loaded_students = []
+            loaded_students = []
 
-        for index, student_data in enumerate(data, start=1):
-            roll_number = student_data.get("roll_number")
+            for index, student_data in enumerate(data, 1):
+                roll_number = student_data.get("roll_number")
 
-            if not roll_number:
-                roll_number = "OLD-" + str(index)
+                if not roll_number:
+                    roll_number = "OLD-" + str(index)
 
-            course = student_data.get("course", "არ არის არჩეული")
+                course = student_data.get(
+                    "course",
+                    "არ არის არჩეული"
+                )
 
-            student = Student(
-                student_data["name"],
-                student_data["surname"],
-                student_data["age"],
-                str(roll_number),
-                course
-            )
+                student = Student(
+                    student_data["name"],
+                    student_data["surname"],
+                    student_data["age"],
+                    str(roll_number),
+                    course
+                )
 
-            student.grades = student_data.get("grades", [])
-            loaded_students.append(student)
+                student.grades = student_data.get("grades", [])
 
-        students.clear()
+                loaded_students.append(student)
 
-        for student in loaded_students:
-            students.append(student)
+            print("მონაცემები წარმატებით ჩაიტვირთა!")
+            return loaded_students
 
-        print("სტუდენტების მონაცემები წარმატებით ჩაიტვირთა!")
+        except FileNotFoundError:
+            print("შენახული მონაცემები არ მოიძებნა!")
+            return []
 
-    except FileNotFoundError:
-        print("შენახული მონაცემები არ მოიძებნა!")
-
-    except (json.JSONDecodeError, KeyError, TypeError, ValueError):
-        print("შენახული მონაცემები არასწორია!")
+        except (
+            json.JSONDecodeError,
+            KeyError,
+            TypeError,
+            ValueError,
+            AttributeError,
+            OSError
+        ) as error:
+            print("მონაცემების ჩატვირთვის შეცდომა:", error)
+            return None
