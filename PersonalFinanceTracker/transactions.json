@@ -1,0 +1,72 @@
+[
+    {
+        "amount": 5000.0,
+        "category": "ხელფასი",
+        "transaction_type": "income",
+        "date": "2026-11-14",
+        "comment": "ნოემბრის ხელფასი"
+    },
+    {
+        "amount": 5000.0,
+        "category": "ხელფასი",
+        "transaction_type": "income",
+        "date": "2026-11-14",
+        "comment": "ნოემბრის ხელფასი"
+    },
+    {
+        "amount": 2000.0,
+        "category": "გზავნილი",
+        "transaction_type": "income",
+        "date": "2026-11-14",
+        "comment": "დამატებითი"
+    },
+    {
+        "amount": 350.0,
+        "category": "კომუნალური",
+        "transaction_type": "expense",
+        "date": "2026-11-14",
+        "comment": "ნოემბრის თვე"
+    },
+    {
+        "amount": 250.0,
+        "category": "სურსათი",
+        "transaction_type": "expense",
+        "date": "2026-11-14",
+        "comment": "პროდუქტების შეძენა"
+    },
+    {
+        "amount": 100.0,
+        "category": "კომუნალური",
+        "transaction_type": "expense",
+        "date": "2026-11-14",
+        "comment": ""
+    },
+    {
+        "amount": 2000.0,
+        "category": "სკოლის გადასახადი",
+        "transaction_type": "expense",
+        "date": "2026-11-14",
+        "comment": "ლილეს სკოლის თანხა"
+    },
+    {
+        "amount": 1500.0,
+        "category": "სკოლის გადასახადი",
+        "transaction_type": "expense",
+        "date": "2026-11-14",
+        "comment": "გიოს სკოლის თანხა"
+    },
+    {
+        "amount": 500.0,
+        "category": "ტრანსპორტი",
+        "transaction_type": "expense",
+        "date": "2026-11-14",
+        "comment": "ლილეს და გიოს სკოლის ტრანსპორტი"
+    },
+    {
+        "amount": 500.0,
+        "category": "სწავლა",
+        "transaction_type": "expense",
+        "date": "2026-11-14",
+        "comment": "სტეპის გადასახადი"
+    }
+]
