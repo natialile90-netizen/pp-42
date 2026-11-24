@@ -1,0 +1,32 @@
+[
+    {
+        "name": "Natia",
+        "surname": "Mamulashvili",
+        "age": 37,
+        "roll_number": "OLD-1",
+        "course": "Not assigned",
+        "grades": [
+            90
+        ]
+    },
+    {
+        "name": "Lile",
+        "surname": "Charkviani",
+        "age": 25,
+        "roll_number": "OLD-2",
+        "course": "Not assigned",
+        "grades": [
+            99
+        ]
+    },
+    {
+        "name": "Natia",
+        "surname": "Mamulashvili",
+        "age": 37,
+        "roll_number": "7000",
+        "course": "Python",
+        "grades": [
+            99
+        ]
+    }
+]
