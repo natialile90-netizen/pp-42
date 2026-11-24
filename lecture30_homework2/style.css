@@ -1,0 +1,45 @@
+body {
+    background-color: #e5a7d1;
+}
+
+.card {
+    background-color: #b04280;
+    width: 400px;
+    padding: 30px;
+    margin: 80px auto;
+    border-radius: 20px;
+}
+
+img {
+    width: 220px;
+    height: 220px;
+    border-radius: 25%;
+    border: 2px solid #eeedee;
+    margin: 0 88px;
+}
+
+h1 {
+    color: white;
+    font-size: 25px;
+    margin: 30px 70px;
+}
+
+.name {
+    color: #2c0524;
+}
+
+.text1 {
+    color: #fad9ef;
+    font-size: 20px;
+    margin: 20px 40px;
+}
+
+.text2 {
+    color: #2e092b;
+    background-color: #deccd5;
+    font-size: 16px;
+    padding: 20px;
+    border: 1px solid #e8dfe7;
+    border-radius: 10px;
+    margin: 15px;
+}
